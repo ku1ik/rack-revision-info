@@ -18,15 +18,20 @@ module Rack
 
     def call(env)
       status, headers, body = @app.call(env)
-      if headers['Content-Type'] == 'text/html' && !Rack::Request.new(env).xhr?
-        if @action
-          doc = Hpricot(body.to_s)
-          elements = doc.search(@selector)
-          if elements.size > 0
-            elements = elements.first if @action == :swap
-            elements.send(@action, @revision_info)
-            body = doc.to_s
+      if headers['Content-Type'].include?('text/html') && !Rack::Request.new(env).xhr?
+        begin
+          if @action
+            doc = Hpricot(body.to_s)
+            elements = doc.search(@selector).compact
+            if elements.size > 0
+              elements = elements.first if @action == :swap
+              elements.send(@action, @revision_info)
+              body = doc.to_s
+            end
           end
+        rescue => e
+          puts e
+          puts e.backtrace
         end
         body << %(\n<!-- #{@revision_info} -->\n)
       end
