@@ -1,7 +1,7 @@
 require 'sinatra'
 require File.dirname(__FILE__) + '/rack_revision_info'
 
-use Rack::RevisionInfo, :path => "/home/kill/workspace/off-plugin", :swap => "#footer"
+use Rack::RevisionInfo, :path => "/home/kill/workspace/off-plugin", :inner_html => "#footer"
 
 get '/' do
   <<EOF

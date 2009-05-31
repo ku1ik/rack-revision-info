@@ -19,7 +19,7 @@ describe "Rack::RevisionInfo" do
       run lambda { |env| [200, { 'Content-Type' => 'text/html' }, ["<html><head></head><body>Hello, World!</body></html>"]] }
     end
     response = Rack::MockRequest.new(app).get('/')
-    response.body.should match(/#{Regexp.escape("<!-- Revision #{REV} (#{DATE.strftime("%Y-%m-%d %H:%M:%S %Z")}) -->")}/)
+    response.body.should match(/#{Regexp.escape("<!-- Revision #{REV} (#{DATE.strftime(Rack::RevisionInfo::DATETIME_FORMAT)}) -->")}/)
   end
 
   it "shouldn't append revision info for non-html content-types" do
@@ -49,5 +49,24 @@ describe "Rack::RevisionInfo" do
       response = Rack::MockRequest.new(app).get('/')
     end.should raise_error(ArgumentError)
   end
+  
+  it "should inject revision info into DOM" do
+    Rack::RevisionInfo::INJECT_ACTIONS.each do |action|
+      app = Rack::Builder.new do
+        use Rack::RevisionInfo, :path => "/some/path/to/repo", action => "#footer"
+        run lambda { |env| [200, { 'Content-Type' => 'text/html' }, ["<html><head></head><body>Hello, World!<div id='footer'>Foota</div></body></html>"]] }
+      end
+      response = Rack::MockRequest.new(app).get('/')
+      response.body.should match(/#{Regexp.escape("Revision #{REV} (#{DATE.strftime(Rack::RevisionInfo::DATETIME_FORMAT)})")}.*#{Regexp.escape("</body>")}/)
+    end
+  end
 
+  it "shouldn't inject revision info into DOM if unknown action" do
+    app = Rack::Builder.new do
+      use Rack::RevisionInfo, :path => "/some/path/to/repo", :what_what => "#footer"
+      run lambda { |env| [200, { 'Content-Type' => 'text/html' }, ["<html><head></head><body>Hello, World!<div id='footer'>Foota</div></body></html>"]] }
+    end
+    response = Rack::MockRequest.new(app).get('/')
+    response.body.should_not match(/#{Regexp.escape("Revision #{REV} (#{DATE.strftime(Rack::RevisionInfo::DATETIME_FORMAT)})")}.*#{Regexp.escape("</body>")}/)
+  end
 end

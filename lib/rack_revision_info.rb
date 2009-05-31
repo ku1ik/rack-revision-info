@@ -1,13 +1,15 @@
 module Rack
   class RevisionInfo
+    INJECT_ACTIONS = [:after, :before, :append, :prepend, :swap, :inner_html]
+    DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
     
     def initialize(app, opts={})
       @app = app
       path = opts[:path] or raise ArgumentError, "You must specify directory of your local repository!"
       revision, date = get_revision_info(path)
       @revision_info = "Revision #{revision || 'unknown'}"
-      @revision_info << " (#{date.strftime("%Y-%m-%d %H:%M:%S %Z")})" if date
-      @action = (opts.keys & [:after, :before, :append, :prepend, :swap]).first
+      @revision_info << " (#{date.strftime(DATETIME_FORMAT)})" if date
+      @action = (opts.keys & INJECT_ACTIONS).first
       if @action
         require 'hpricot'
         @selector = opts[@action]
