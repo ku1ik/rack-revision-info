@@ -1,8 +1,17 @@
 require 'sinatra'
-require 'rack-revision-info'
+require File.dirname(__FILE__) + '/rack_revision_info'
 
-use Rack::RevisionInfo, :path => "/home/kill/workspace/off-plugin"
+use Rack::RevisionInfo, :path => "/home/kill/workspace/off-plugin", :swap => "#footer"
 
 get '/' do
-  "This is yola!"
+  <<EOF
+<html>
+<head></head>
+<body>
+  <h1>Yo yo!</h1>
+  <h2>Ha dwa</h2>
+  <div id="footer">Copyright 2066</div>
+</body>
+</html>
+EOF
 end

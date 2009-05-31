@@ -7,12 +7,26 @@ module Rack
       revision, date = get_revision_info(path)
       @revision_info = "Revision #{revision || 'unknown'}"
       @revision_info << " (#{date.strftime("%Y-%m-%d %H:%M:%S %Z")})" if date
+      @action = (opts.keys & [:after, :before, :append, :prepend, :swap]).first
+      if @action
+        require 'hpricot'
+        @selector = opts[@action]
+      end
     end
 
     def call(env)
       status, headers, body = @app.call(env)
       if headers['Content-Type'] == 'text/html' && !Rack::Request.new(env).xhr?
-        body << "\n" << %(<!-- #{@revision_info} -->)
+        if @action
+          doc = Hpricot(body.to_s)
+          elements = doc.search(@selector)
+          if elements.size > 0
+            elements = elements.first if @action == :swap
+            elements.send(@action, @revision_info)
+            body = doc.to_s
+          end
+        end
+        body << %(\n<!-- #{@revision_info} -->\n)
       end
       [status, headers, body]
     end

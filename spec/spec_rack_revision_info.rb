@@ -22,7 +22,7 @@ describe "Rack::RevisionInfo" do
     response.body.should match(/#{Regexp.escape("<!-- Revision #{REV} (#{DATE.strftime("%Y-%m-%d %H:%M:%S %Z")}) -->")}/)
   end
 
-  it "doesn't append revision info for non-html content-types" do
+  it "shouldn't append revision info for non-html content-types" do
     app = Rack::Builder.new do
       use Rack::RevisionInfo, :path => "/some/path/to/repo"
       run lambda { |env| [200, { 'Content-Type' => 'text/plain' }, ["Hello, World!"]] }
@@ -31,7 +31,7 @@ describe "Rack::RevisionInfo" do
     response.body.should_not match(/#{Regexp.escape('<!-- Revision ')}/)
   end
 
-  it "doesn't append revision info for xhr requests" do
+  it "shouldn't append revision info for xhr requests" do
     app = Rack::Builder.new do
       use Rack::RevisionInfo, :path => "/some/path/to/repo"
       run lambda { |env| [200, { 'Content-Type' => 'text/html' }, ["<html><head></head><body>Hello, World!</body></html>"]] }
@@ -40,7 +40,7 @@ describe "Rack::RevisionInfo" do
     response.body.should_not match(/#{Regexp.escape('<!-- Revision ')}/)
   end
 
-  it "raises exeption when no path given" do
+  it "should raise exeption when no path given" do
     app = Rack::Builder.new do
       use Rack::RevisionInfo
       run lambda { |env| [200, {'Content-Type' => 'text/plain'}, ["Hello, World!"]] }
