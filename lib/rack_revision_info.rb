@@ -21,7 +21,9 @@ module Rack
       if headers['Content-Type'].include?('text/html') && !Rack::Request.new(env).xhr?
         begin
           if @action
-            doc = Hpricot(body.to_s)
+            html = ""
+            body.each { |s| html << s }
+            doc = Hpricot(html)
             elements = doc.search(@selector).compact
             if elements.size > 0
               elements = elements.first if @action == :swap
