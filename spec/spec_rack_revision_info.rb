@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'spec'
 require 'rack/builder'
 require 'rack/mock'
