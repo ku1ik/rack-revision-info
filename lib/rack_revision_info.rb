@@ -19,11 +19,12 @@ module Rack
     def call(env)
       status, headers, body = @app.call(env)
       if headers['Content-Type'].include?('text/html') && !Rack::Request.new(env).xhr?
+        html = ""
+        body.each { |s| html << s }
+        body = html
         begin
           if @action
-            html = ""
-            body.each { |s| html << s }
-            doc = Hpricot(html)
+            doc = Hpricot(body)
             elements = doc.search(@selector).compact
             if elements.size > 0
               elements = elements.first if @action == :swap
@@ -36,6 +37,7 @@ module Rack
           puts e.backtrace
         end
         body << %(\n<!-- #{@revision_info} -->\n)
+        body = [body]
       end
       [status, headers, body]
     end
