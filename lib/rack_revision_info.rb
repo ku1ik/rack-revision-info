@@ -48,6 +48,7 @@ module Rack
       unless opts[:revision_label].nil?
         revision_label = opts[:revision_label]
       end
+      revision_label
     end
 
     def get_date_format(opts={})
@@ -55,6 +56,7 @@ module Rack
       unless opts[:date_format].nil?
         date_format = opts[:date_format]
       end
+      date_format
     end
 
     def get_revision_info(path, opts={})

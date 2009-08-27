@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rack_revision_info}
-  s.version = "0.3.3"
+  s.version = "0.3.4"
   s.platform = Gem::Platform::RUBY
   s.date = %q{2009-06-18}
   s.authors = ["Marcin Kulik"]
