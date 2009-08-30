@@ -11,8 +11,9 @@ module Rack
       @revision_info << " (#{date.strftime(DATETIME_FORMAT)})" if date
       @action = (opts.keys & INJECT_ACTIONS).first
       if @action
-        require 'hpricot'
+        require File.join(File.dirname(__FILE__), 'rack_revision_info', 'nokogiri_backend')
         @selector = opts[@action]
+        @action = :inner_html= if @action == :inner_html
       end
     end
 
@@ -24,11 +25,10 @@ module Rack
         body = html
         begin
           if @action
-            doc = Hpricot(body)
-            elements = doc.search(@selector).compact
+            doc = Nokogiri.parse(body)
+            elements = doc.css(@selector)
             if elements.size > 0
-              elements = elements.first if @action == :swap
-              elements.send(@action, @revision_info)
+              elements.each { |e| e.send(@action, @revision_info) }
               body = doc.to_s
             end
           end
