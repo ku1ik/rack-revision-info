@@ -5,13 +5,22 @@ require 'rack/mock'
 require File.join(File.dirname(__FILE__), '..', 'lib', 'rack_revision_info.rb')
 
 class Rack::RevisionInfo
-  def get_revision_info(path)
-    [REV, DATE]
+  DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
+  def get_revision_info(path, opts={})
+    [(opts[:short_git_revisions] ? SHORT_GIT_REV : REV), DATE]
+  end
+  def get_revision_label(opts={})
+    opts[:revision_label] or REV_LABEL
+  end
+  def get_date_format(opts={})
+    opts[:date_format] or DATETIME_FORMAT
   end
 end
 
 describe "Rack::RevisionInfo" do
   REV = "a4jf64jf4hff"
+  SHORT_GIT_REV = "a4jf64jf"
+  REV_LABEL = "Revision"
   DATE = DateTime.now
 
   it "should append revision info in html comment" do
@@ -21,6 +30,26 @@ describe "Rack::RevisionInfo" do
     end
     response = Rack::MockRequest.new(app).get('/')
     response.body.should match(/#{Regexp.escape("<!-- Revision #{REV} (#{DATE.strftime(Rack::RevisionInfo::DATETIME_FORMAT)}) -->")}/m)
+  end
+
+  it "should append customised revision info in html comment" do
+    custom_date_format = "%d-%m-%Y %H:%M:%S"
+    app = Rack::Builder.new do
+      use Rack::RevisionInfo, :path => "/some/path/to/repo", :revision_label => "Rev", :date_format => custom_date_format
+      run lambda { |env| [200, { 'Content-Type' => 'text/html' }, ["<html><head></head><body>Hello, World!</body></html>"]] }
+    end
+    response = Rack::MockRequest.new(app).get('/')
+    response.body.should match(/#{Regexp.escape("<!-- Rev #{REV} (#{DATE.strftime(custom_date_format)}) -->")}/)
+  end
+
+  it "should append customised git specific revision info in html comment" do
+    custom_date_format = "%d-%m-%Y %H:%M:%S"
+    app = Rack::Builder.new do
+      use Rack::RevisionInfo, :path => "/some/path/to/repo", :revision_label => "Rev", :date_format => custom_date_format, :short_git_revisions => true
+      run lambda { |env| [200, { 'Content-Type' => 'text/html' }, ["<html><head></head><body>Hello, World!</body></html>"]] }
+    end
+    response = Rack::MockRequest.new(app).get('/')
+    response.body.should match(/#{Regexp.escape("<!-- Rev #{SHORT_GIT_REV} (#{DATE.strftime(custom_date_format)}) -->")}/)
   end
 
   it "shouldn't append revision info for non-html content-types" do

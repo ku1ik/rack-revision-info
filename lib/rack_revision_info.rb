@@ -1,14 +1,13 @@
 module Rack
   class RevisionInfo
     INJECT_ACTIONS = [:after, :before, :append, :prepend, :swap, :inner_html]
-    DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
-    
+
     def initialize(app, opts={})
       @app = app
       path = opts[:path] or raise ArgumentError, "You must specify directory of your local repository!"
-      revision, date = get_revision_info(path)
-      @revision_info = "Revision #{revision || 'unknown'}"
-      @revision_info << " (#{date.strftime(DATETIME_FORMAT)})" if date
+      revision, date = get_revision_info(path, opts)
+      @revision_info = "#{get_revision_label(opts)} #{revision || 'unknown'}"
+      @revision_info << " (#{date.strftime(get_date_format(opts))})" if date
       @action = (opts.keys & INJECT_ACTIONS).first
       if @action
         require File.join(File.dirname(__FILE__), 'rack_revision_info', 'nokogiri_backend')
@@ -44,11 +43,31 @@ module Rack
 
     protected
 
-    def get_revision_info(path)
+    def get_revision_label(opts={})
+      revision_label = 'Revision'
+      unless opts[:revision_label].nil?
+        revision_label = opts[:revision_label]
+      end
+      revision_label
+    end
+
+    def get_date_format(opts={})
+      date_format = "%Y-%m-%d %H:%M:%S %Z"
+      unless opts[:date_format].nil?
+        date_format = opts[:date_format]
+      end
+      date_format
+    end
+
+    def get_revision_info(path, opts={})
       case detect_type(path)
       when :git
+        revision_regex_extra = '+'
+        if not opts[:short_git_revisions].nil? and opts[:short_git_revisions]
+          revision_regex_extra = '{8}'
+        end
         info = `cd #{path}; LC_ALL=C git log -1 --pretty=medium`
-        revision = info[/commit\s([a-z0-9]+)/, 1]
+        revision = info[/commit\s([a-z0-9]#{revision_regex_extra})/, 1]
         date = (d = info[/Date:\s+(.+)$/, 1]) && (DateTime.parse(d) rescue nil)
       when :svn
         info = `cd #{path}; LC_ALL=C svn info`
