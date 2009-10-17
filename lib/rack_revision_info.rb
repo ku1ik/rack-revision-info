@@ -10,7 +10,7 @@ module Rack
       @revision_info << " (#{date.strftime(get_date_format(opts))})" if date
       @action = (opts.keys & INJECT_ACTIONS).first
       if @action
-        require File.join(File.dirname(__FILE__), 'rack_revision_info', 'nokogiri_backend')
+        require ::File.join(::File.dirname(__FILE__), 'rack_revision_info', 'nokogiri_backend')
         @selector = opts[@action]
         @action = :inner_html= if @action == :inner_html
       end
