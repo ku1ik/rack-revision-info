@@ -6,13 +6,13 @@ When you deploy application to a demo server QA (or client) wants to know which 
 
 h2. Installation
 
-<pre><code>gem install sickill-rack_revision_info --source http://gems.github.com</code></pre>
+<pre><code>gem install rack_revision_info -s http://gemcutter.org</code></pre>
 
 Enable in Merb:
 
 <em>config/dependencies.rb</em>:
 
-<pre><code>dependency "sickill-rack_revision_info", :require_as => "rack_revision_info"</code></pre>
+<pre><code>dependency "rack_revision_info"</code></pre>
 
 <em>config/rack.rb</em> (before line with <code>run Merb::Rack::Application.new</code>):
 
@@ -22,7 +22,7 @@ Enable in Rails:
 
 <em>config/environment.rb</em>:
 
-<pre><code>config.gem "sickill-rack_revision_info", :lib => "rack_revision_info", :source => "http://gems.github.com"
+<pre><code>config.gem "rack_revision_info", :source => "http://gemcutter.org"
 config.middleware.use Rack::RevisionInfo, :path => RAILS_ROOT
 </code></pre>
 
