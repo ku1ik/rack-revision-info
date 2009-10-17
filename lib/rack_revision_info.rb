@@ -18,10 +18,8 @@ module Rack
 
     def call(env)
       status, headers, body = @app.call(env)
-      if headers['Content-Type'].include?('text/html') && !Rack::Request.new(env).xhr?
-        html = ""
-        body.each { |s| html << s }
-        body = html
+      if headers['Content-Type'].to_s.include?('text/html') && !Rack::Request.new(env).xhr?
+        body = body.inject("") { |acc, line| acc + line }
         begin
           if @action
             doc = Nokogiri.parse(body)
@@ -36,6 +34,7 @@ module Rack
           puts e.backtrace
         end
         body << %(\n<!-- #{@revision_info} -->\n)
+        headers["Content-Length"] = body.size.to_s
         body = [body]
       end
       [status, headers, body]
@@ -44,28 +43,17 @@ module Rack
     protected
 
     def get_revision_label(opts={})
-      revision_label = 'Revision'
-      unless opts[:revision_label].nil?
-        revision_label = opts[:revision_label]
-      end
-      revision_label
+      opts[:revision_label] || 'Revision'
     end
 
     def get_date_format(opts={})
-      date_format = "%Y-%m-%d %H:%M:%S %Z"
-      unless opts[:date_format].nil?
-        date_format = opts[:date_format]
-      end
-      date_format
+      opts[:date_format] || "%Y-%m-%d %H:%M:%S %Z"
     end
 
     def get_revision_info(path, opts={})
       case detect_type(path)
       when :git
-        revision_regex_extra = '+'
-        if not opts[:short_git_revisions].nil? and opts[:short_git_revisions]
-          revision_regex_extra = '{8}'
-        end
+        revision_regex_extra = opts[:short_git_revisions] ? '{8}' : '+'
         info = `cd #{path}; LC_ALL=C git log -1 --pretty=medium`
         revision = info[/commit\s([a-z0-9]#{revision_regex_extra})/, 1]
         date = (d = info[/Date:\s+(.+)$/, 1]) && (DateTime.parse(d) rescue nil)
