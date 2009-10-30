@@ -6,7 +6,7 @@ When you deploy application to a demo server QA (or client) wants to know which 
 
 h2. Installation
 
-<pre><code>gem install rack_revision_info -s http://gemcutter.org</code></pre>
+<pre><code>gem install rack-revision-info -s http://gemcutter.org</code></pre>
 
 Enable in Merb:
 
@@ -22,7 +22,7 @@ Enable in Rails:
 
 <em>config/environment.rb</em>:
 
-<pre><code>config.gem "rack_revision_info", :source => "http://gemcutter.org"
+<pre><code>config.gem "rack-revision-info", :source => "http://gemcutter.org"
 config.middleware.use Rack::RevisionInfo, :path => RAILS_ROOT
 </code></pre>
 
