@@ -10,6 +10,6 @@ Gem::Specification.new do |s|
   s.has_rdoc = false
   s.homepage = %q{http://sickill.net}
   s.summary = %q{Rack middleware showing current git (or svn) revision number of application}
-  s.files = [ "lib/rack-revision-info.rb", "lib/rack-revision-info/nokogiri_backend.rb", "spec/spec_rack-revision-info.rb" ]
+  s.files = [ "lib/rack-revision-info.rb", "lib/rack-revision-info/nokogiri_backend.rb", "spec/spec-rack-revision-info.rb" ]
 #  s.require_paths = ["lib"]
 end

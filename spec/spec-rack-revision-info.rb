@@ -87,7 +87,7 @@ describe "Rack::RevisionInfo" do
         run lambda { |env| [200, { 'Content-Type' => 'text/html' }, [%q{<html><head></head><body>Hello, World!<div id="footer">Foota</div></body></html>}]] }
       end
       response = Rack::MockRequest.new(app).get('/')
-      response.body.should match(/#{Regexp.escape("Revision #{REV} (#{DATE.strftime(Rack::RevisionInfo::DATETIME_FORMAT)})")}.*#{Regexp.escape("</body>")}/m)
+      response.body.should match(/#{Regexp.escape("<span class=\"rack-revision-info\">Revision #{REV} (#{DATE.strftime(Rack::RevisionInfo::DATETIME_FORMAT)})</span>")}.*#{Regexp.escape("</body>")}/m)
     end
   end
 

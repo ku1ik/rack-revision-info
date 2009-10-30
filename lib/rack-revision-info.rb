@@ -10,7 +10,7 @@ module Rack
       @revision_info << " (#{date.strftime(get_date_format(opts))})" if date
       @action = (opts.keys & INJECT_ACTIONS).first
       if @action
-        require ::File.join(::File.dirname(__FILE__), 'rack_revision_info', 'nokogiri_backend')
+        require ::File.join(::File.dirname(__FILE__), 'rack-revision-info', 'nokogiri_backend')
         @selector = opts[@action]
         @action = :inner_html= if @action == :inner_html
       end
@@ -25,7 +25,7 @@ module Rack
             doc = Nokogiri.parse(body)
             elements = doc.css(@selector)
             if elements.size > 0
-              elements.each { |e| e.send(@action, @revision_info) }
+              elements.each { |e| e.send(@action, "<span class=\"rack-revision-info\">#{@revision_info}</span>") }
               body = doc.to_s
             end
           end
