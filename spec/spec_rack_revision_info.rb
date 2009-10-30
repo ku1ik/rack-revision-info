@@ -2,7 +2,7 @@ require 'rubygems'
 require 'spec'
 require 'rack/builder'
 require 'rack/mock'
-require File.join(File.dirname(__FILE__), '..', 'lib', 'rack_revision_info.rb')
+require File.join(File.dirname(__FILE__), '..', 'lib', 'rack-revision-info.rb')
 
 class Rack::RevisionInfo
   DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
