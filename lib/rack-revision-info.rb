@@ -19,7 +19,9 @@ module Rack
     def call(env)
       status, headers, body = @app.call(env)
       if headers['Content-Type'].to_s.include?('text/html') && !Rack::Request.new(env).xhr?
-        body = body.inject("") { |acc, line| acc + line }
+        new_body = ""
+        body.each { |line| new_body << line }
+        body = new_body
         begin
           if @action
             doc = Nokogiri.parse(body)
