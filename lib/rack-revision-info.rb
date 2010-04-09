@@ -9,6 +9,7 @@ module Rack
       @revision_info = "#{get_revision_label(opts)} #{revision || 'unknown'}"
       @revision_info << " (#{date.strftime(get_date_format(opts))})" if date
       @action = (opts.keys & INJECT_ACTIONS).first
+      @into_header = opts[:header]
       if @action
         require ::File.join(::File.dirname(__FILE__), 'rack-revision-info', 'nokogiri_backend')
         @selector = opts[@action]
@@ -18,7 +19,10 @@ module Rack
 
     def call(env)
       status, headers, body = @app.call(env)
-      if headers['Content-Type'].to_s.include?('text/html') && !Rack::Request.new(env).xhr?
+      if @into_header
+        h = @into_header == true ? 'X-Revision-Info' : @into_header
+        headers[h] = @revision_info
+      elsif headers['Content-Type'].to_s.include?('text/html') && !Rack::Request.new(env).xhr?
         new_body = ""
         body.each { |line| new_body << line }
         body = new_body

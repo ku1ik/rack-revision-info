@@ -2,7 +2,8 @@ require 'rubygems'
 require 'spec'
 require 'rack/builder'
 require 'rack/mock'
-require File.join(File.dirname(__FILE__), '..', 'lib', 'rack-revision-info.rb')
+require 'date'
+require File.expand_path File.join(File.dirname(__FILE__), '..', 'lib', 'rack-revision-info.rb')
 
 class Rack::RevisionInfo
   DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
@@ -79,7 +80,7 @@ describe "Rack::RevisionInfo" do
       response = Rack::MockRequest.new(app).get('/')
     end.should raise_error(ArgumentError)
   end
-  
+
   it "should inject revision info into DOM" do
     Rack::RevisionInfo::INJECT_ACTIONS.each do |action|
       app = Rack::Builder.new do
@@ -98,6 +99,24 @@ describe "Rack::RevisionInfo" do
     end
     response = Rack::MockRequest.new(app).get('/')
     response.body.should_not match(/#{Regexp.escape("Revision #{REV} (#{DATE.strftime(Rack::RevisionInfo::DATETIME_FORMAT)})")}.*#{Regexp.escape("</body>")}/m)
+  end
+
+  it "should put revision info into X-Revision-Info header" do
+    app = Rack::Builder.new do
+      use Rack::RevisionInfo, :path => "/some/path/to/repo", :header => true
+      run lambda { |env| [200, { 'Content-Type' => 'application/xml' }, ['<response><some_xml></some_xml></response>']] }
+    end
+    response = Rack::MockRequest.new(app).get('/')
+    response.headers['X-Revision-Info'].should match(/#{Regexp.escape("#{REV} (#{DATE.strftime(Rack::RevisionInfo::DATETIME_FORMAT)})")}/m)
+  end
+
+  it "should put revision info into My-Custom-Header header" do
+    app = Rack::Builder.new do
+      use Rack::RevisionInfo, :path => "/some/path/to/repo", :header => 'My-Custom-Header'
+      run lambda { |env| [200, { 'Content-Type' => 'application/xml' }, ['<response><some_xml></some_xml></response>']] }
+    end
+    response = Rack::MockRequest.new(app).get('/')
+    response.headers['My-Custom-Header'].should match(/#{Regexp.escape("#{REV} (#{DATE.strftime(Rack::RevisionInfo::DATETIME_FORMAT)})")}/m)
   end
 
   it "shouldn't escape backslashes" do # hpricot was doing this :|
