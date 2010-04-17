@@ -4,7 +4,7 @@ module Rack
 
     def initialize(app, opts={})
       @app = app
-      path = opts[:path] or raise ArgumentError, "You must specify directory of your local repository!"
+      path = opts[:path] or raise ArgumentError, "You must specify directory of your local repository with :path option"
       revision, date = get_revision_info(path, opts)
       @revision_info = "#{get_revision_label(opts)} #{revision || 'unknown'}"
       @revision_info << " (#{date.strftime(get_date_format(opts))})" if date
