@@ -2,13 +2,14 @@ require 'nokogiri'
 
 # extending Nokogiri with 'append' and 'prepend' methods
 
-class Nokogiri::XML::Element
+Nokogiri::XML::Element.class_eval do
   def append(data)
-    self.inner_html = inner_html + data
+    child = self.children.last
+    child && child.after(data) || add_child(data)
   end
 
   def prepend(data)
-    self.inner_html = data + inner_html
+    child = self.children.first
+    child && child.before(data) || add_child(data)
   end
 end
-
