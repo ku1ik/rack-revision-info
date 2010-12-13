@@ -40,7 +40,7 @@ module Rack
           puts e.backtrace
         end
         body << %(\n<!-- #{@revision_info} -->\n)
-        headers["Content-Length"] = body.size.to_s
+        headers["Content-Length"] = body.bytesize.to_s
         body = [body]
       end
       [status, headers, body]
