@@ -44,5 +44,5 @@ Specified CSS selector can be any selector supported by Nokogiri so you can free
 
 h2. Contact & Information
 
-Marcin Kulik - http://sickill.net/
+Marcin Kulik - http://ku1ik.com/
 
